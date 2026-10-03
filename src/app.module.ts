@@ -8,6 +8,7 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor.js';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter.js';
 import { ProjectsModule } from './modules/projects/projects.module.js';
+import { IssuesModule } from './modules/issues/issues.module.js';
 
 
 @Module({
@@ -26,6 +27,7 @@ import { ProjectsModule } from './modules/projects/projects.module.js';
       }),
     }),
      ProjectsModule,
+     IssuesModule,
   ],
   controllers: [AppController],
   providers: [AppService,

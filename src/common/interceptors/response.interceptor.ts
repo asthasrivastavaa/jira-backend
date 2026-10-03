@@ -5,11 +5,13 @@ import { map } from 'rxjs/operators';
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    return next.handle().pipe(
-      map((data) => ({
-        success: true,
-        data,
-      })),
+        return next.handle().pipe(
+      map((payload) =>
+        payload && typeof payload === 'object' && 'items' in payload && 'meta' in payload
+          ? { success: true, data: payload.items, meta: payload.meta }
+          : { success: true, data: payload },
+      ),
     );
+
   }
 }

@@ -18,6 +18,11 @@ export class ProjectsController {
     return this.projectsService.findAll();
   }
 
+@Get('key/:key')
+  findByKey(@Param('key') key: string) {
+    return this.projectsService.findByKey(key);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseObjectIdPipe) id: string) {
     return this.projectsService.findOne(id);

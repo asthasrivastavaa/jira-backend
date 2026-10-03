@@ -4,11 +4,12 @@ import { Model } from 'mongoose';
 import { Project, ProjectDocument } from './schemas/project.schema.js';
 import { CreateProjectDto } from './dto/create-project.dto.js';
 import { UpdateProjectDto } from './dto/update-project.dto.js';
-
+import { Issue, IssueDocument } from '../issues/schemas/issue.schema.js';
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectModel(Project.name) private projectModel: Model<ProjectDocument>,
+    @InjectModel(Issue.name) private issueModel: Model<IssueDocument>,
   ) {}
 
   async create(dto: CreateProjectDto): Promise<ProjectDocument> {
@@ -21,6 +22,15 @@ export class ProjectsService {
       throw err;
     }
   }
+
+async findByKey(key: string): Promise<ProjectDocument> {
+    const project = await this.projectModel.findOne({ key: key.toUpperCase() }).exec();
+    if (!project) {
+      throw new NotFoundException(`Project ${key} not found`);
+    }
+    return project;
+  }
+
 
   async findAll(): Promise<ProjectDocument[]> {
     return this.projectModel.find().sort({ createdAt: -1 }).exec();
@@ -49,5 +59,16 @@ export class ProjectsService {
     if (!result) {
       throw new NotFoundException(`Project ${id} not found`);
     }
+    await this.issueModel.deleteMany({ projectId: result._id }).exec();
   }
+    async reserveIssueNumber(id: string): Promise<{ projectKey: string; number: number }> {
+    const project = await this.projectModel
+      .findByIdAndUpdate(id, { $inc: { issueCounter: 1 } }, { new: true })
+      .exec();
+    if (!project) {
+      throw new NotFoundException(`Project ${id} not found`);
+    }
+    return { projectKey: project.key, number: project.issueCounter };
+  }
+
 }
