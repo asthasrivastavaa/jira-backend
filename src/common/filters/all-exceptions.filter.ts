@@ -6,6 +6,9 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { ThrottlerException } from '@nestjs/throttler';
+
+
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -33,6 +36,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
         errors = b.message;
       } else if (b.message) {
         message = b.message;
+      }
+      
+ 
+
+    }
+       // Rate-limit responses: friendly text + how long to wait (so the UI can show a countdown)
+    let retryAfter: number | undefined;
+    if (status === HttpStatus.TOO_MANY_REQUESTS) {
+      const fromBody = body && typeof body === 'object' ? (body as Record<string, any>).retryAfter : undefined;
+      retryAfter = fromBody ?? (Number(response.getHeader('Retry-After')) || undefined);
+      if (exception instanceof ThrottlerException) {
+        message = 'Too many attempts. Please wait a moment and try again.';
       }
     }
 

@@ -4,11 +4,17 @@ import { AppService } from './app.service.js';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validateEnv } from './config/env.validation.js';
 import{MongooseModule} from '@nestjs/mongoose';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor.js';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter.js';
 import { ProjectsModule } from './modules/projects/projects.module.js';
 import { IssuesModule } from './modules/issues/issues.module.js';
+import { RedisModule } from './infra/redis/redis.module.js';
+import { UsersModule } from './modules/users/user.module.js';
+import { MailModule } from './infra/mail/mail.module.js';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { AuthModule } from './modules/auth/auth.module.js';
+import { WorkspacesModule } from './modules/workspaces/workspaces.module.js';
 
 
 @Module({
@@ -28,6 +34,12 @@ import { IssuesModule } from './modules/issues/issues.module.js';
     }),
      ProjectsModule,
      IssuesModule,
+     RedisModule,
+     UsersModule,
+     MailModule,
+     AuthModule,
+     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
+     WorkspacesModule,
   ],
   controllers: [AppController],
   providers: [AppService,
@@ -36,6 +48,8 @@ import { IssuesModule } from './modules/issues/issues.module.js';
       useClass: ResponseInterceptor,
     },
       { provide: APP_FILTER, useClass: AllExceptionsFilter },
+          { provide: APP_GUARD, useClass: ThrottlerGuard },
+
   ],
 })
 export class AppModule {}

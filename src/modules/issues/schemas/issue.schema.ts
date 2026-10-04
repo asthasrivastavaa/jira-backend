@@ -19,7 +19,7 @@ export class Issue {
   @Prop({ required: true })
   number: number;
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   key: string;
 
   @Prop({ required: true, trim: true })
@@ -43,4 +43,5 @@ export class Issue {
 
 export const IssueSchema = SchemaFactory.createForClass(Issue);
 IssueSchema.index({ projectId: 1, status: 1, createdAt: -1 });
-IssueSchema.index({ projectId: 1, number: -1 });
+IssueSchema.index({ projectId: 1, number: -1 }, { unique: true });
+

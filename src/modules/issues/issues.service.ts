@@ -69,11 +69,14 @@ export class IssuesService {
     if (!issue) throw new NotFoundException(`Issue ${id} not found`);
     return issue;
   }
-    async findByKey(key: string): Promise<IssueDocument> {
-    const issue = await this.issueModel.findOne({ key: key.toUpperCase() }).exec();
+     async findByKey(projectId: string, key: string): Promise<IssueDocument> {
+    const issue = await this.issueModel
+      .findOne({ projectId: new Types.ObjectId(projectId), key: key.toUpperCase() })
+      .exec();
     if (!issue) throw new NotFoundException(`Issue ${key} not found`);
     return issue;
   }
+
 
 
   async remove(id: string): Promise<void> {
