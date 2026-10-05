@@ -17,6 +17,10 @@ import { UpdateWorkspaceDto } from './dto/update-workspace.dto.js';
 import { UsersService } from '../users/user.service.js';
 import { Issue, IssueDocument } from '../issues/schemas/issue.schema.js';
 import { Project, ProjectDocument } from '../projects/schemas/project.schema.js';
+import { Label, LabelDocument } from '../labels/schemas/label.schema.js';
+import { Comment, CommentDocument } from '../comments/schemas/comment.schema.js';
+import { Activity, ActivityDocument } from '../activity/schemas/activity.schema.js';
+import { Sprint, SprintDocument } from '../sprints/schemas/sprint.schema.js';
 
 @Injectable()
 export class WorkspacesService {
@@ -26,6 +30,10 @@ export class WorkspacesService {
     @InjectModel(Invite.name) private inviteModel: Model<InviteDocument>,
     @InjectModel(Project.name) private projectModel: Model<ProjectDocument>,
     @InjectModel(Issue.name) private issueModel: Model<IssueDocument>,
+    @InjectModel(Label.name) private labelModel: Model<LabelDocument>,
+    @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
+    @InjectModel(Activity.name) private activityModel: Model<ActivityDocument>,
+    @InjectModel(Sprint.name) private sprintModel: Model<SprintDocument>,
     private readonly users: UsersService,
   ) {}
 
@@ -151,6 +159,14 @@ export class WorkspacesService {
     if (!isSelf && actor.role !== 'owner' && actor.role !== 'admin') {
       throw new ForbiddenException('You do not have permission to do this');
     }
+
+    // their issues in this workspace become unassigned (they can't see them any more)
+    const projectIds = await this.projectModel.find({ workspaceId: new Types.ObjectId(workspaceId) }).distinct('_id');
+    await this.issueModel.updateMany(
+      { projectId: { $in: projectIds }, assigneeId: new Types.ObjectId(targetUserId) },
+      { $set: { assigneeId: null } },
+    );
+
     await target.deleteOne();
     return { userId: targetUserId };
   }
@@ -206,8 +222,12 @@ export class WorkspacesService {
     await this.requireRole(workspaceId, actorId, ['owner']);
     const oid = new Types.ObjectId(workspaceId);
 
-    const projects = await this.projectModel.find({ workspaceId: oid }).select('_id').lean();
-    await this.issueModel.deleteMany({ projectId: { $in: projects.map((p) => p._id) } });
+    const projectIds = (await this.projectModel.find({ workspaceId: oid }).select('_id').lean()).map((p) => p._id);
+    await this.issueModel.deleteMany({ projectId: { $in: projectIds } });
+    await this.labelModel.deleteMany({ projectId: { $in: projectIds } });
+    await this.commentModel.deleteMany({ projectId: { $in: projectIds } });
+    await this.activityModel.deleteMany({ projectId: { $in: projectIds } });
+    await this.sprintModel.deleteMany({ projectId: { $in: projectIds } });
     await this.projectModel.deleteMany({ workspaceId: oid });
     await this.inviteModel.deleteMany({ workspaceId: oid });
     await this.memberModel.deleteMany({ workspaceId: oid });

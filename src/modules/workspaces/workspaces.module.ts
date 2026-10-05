@@ -3,6 +3,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from '../users/user.module.js';
 import { Issue, IssueSchema } from '../issues/schemas/issue.schema.js';
 import { Project, ProjectSchema } from '../projects/schemas/project.schema.js';
+import { Label, LabelSchema } from '../labels/schemas/label.schema.js';
+import { Comment, CommentSchema } from '../comments/schemas/comment.schema.js';
+import { Activity, ActivitySchema } from '../activity/schemas/activity.schema.js';
+import { Sprint, SprintSchema } from '../sprints/schemas/sprint.schema.js';
 import { AccessService } from './access.service.js';
 import { InvitesController } from './invites.controller.js';
 import { InvitesService } from './invites.service.js';
@@ -21,6 +25,10 @@ import { WorkspacesService } from './workspaces.service.js';
       // needed by AccessService (find a project's/issue's workspace) and by workspace deletion (2.8)
       { name: Project.name, schema: ProjectSchema },
       { name: Issue.name, schema: IssueSchema },
+      { name: Label.name, schema: LabelSchema },
+      { name: Comment.name, schema: CommentSchema },
+      { name: Activity.name, schema: ActivitySchema },
+      { name: Sprint.name, schema: SprintSchema },
     ]),
     UsersModule,
   ],

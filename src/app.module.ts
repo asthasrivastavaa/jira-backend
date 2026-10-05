@@ -15,6 +15,9 @@ import { MailModule } from './infra/mail/mail.module.js';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { WorkspacesModule } from './modules/workspaces/workspaces.module.js';
+import { CommentsModule } from './modules/comments/comments.module.js';
+import { SprintsModule } from './modules/sprints/sprints.module.js';
+import { SearchModule } from './modules/search/search.module.js';
 
 
 @Module({
@@ -40,6 +43,9 @@ import { WorkspacesModule } from './modules/workspaces/workspaces.module.js';
      AuthModule,
      ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
      WorkspacesModule,
+     CommentsModule,
+     SprintsModule,
+     SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService,

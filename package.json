@@ -34,11 +34,13 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "cookie-parser": "^1.4.7",
+    "fractional-indexing": "^4.0.0",
     "ioredis": "^6.0.0",
     "mongoose": "^9.10.2",
     "nodemailer": "^10.0.14",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "sanitize-html": "^2.18.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
@@ -51,6 +53,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "^24.0.0",
     "@types/nodemailer": "^8.0.2",
+    "@types/sanitize-html": "^2.16.2",
     "@types/supertest": "^7.0.0",
     "@vitest/coverage-v8": "^4.1.2",
     "oxlint": "^1.58.0",

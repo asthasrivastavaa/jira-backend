@@ -6,13 +6,21 @@ import { CreateProjectDto } from './dto/create-project.dto.js';
 import { UpdateProjectDto } from './dto/update-project.dto.js';
 import { Issue, IssueDocument } from '../issues/schemas/issue.schema.js';
 import { WorkspacesService } from '../workspaces/workspaces.service.js';
+import { Label, LabelDocument } from '../labels/schemas/label.schema.js';
+import { Comment, CommentDocument } from '../comments/schemas/comment.schema.js';
+import { Activity, ActivityDocument } from '../activity/schemas/activity.schema.js';
+import { Sprint, SprintDocument } from '../sprints/schemas/sprint.schema.js';
+
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectModel(Project.name) private projectModel: Model<ProjectDocument>,
     @InjectModel(Issue.name) private issueModel: Model<IssueDocument>,
-        private workspaces: WorkspacesService,
-
+    @InjectModel(Label.name) private labelModel: Model<LabelDocument>,
+    @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
+    @InjectModel(Activity.name) private activityModel: Model<ActivityDocument>,
+    @InjectModel(Sprint.name) private sprintModel: Model<SprintDocument>,
+    private workspaces: WorkspacesService,
   ) {}
 
   private async assertMember(workspaceId: string, userId: string) {
@@ -91,6 +99,10 @@ export class ProjectsService {
       throw new NotFoundException(`Project ${id} not found`);
     }
     await this.issueModel.deleteMany({ projectId: result._id }).exec();
+    await this.labelModel.deleteMany({ projectId: result._id }).exec();
+    await this.commentModel.deleteMany({ projectId: result._id }).exec();
+    await this.activityModel.deleteMany({ projectId: result._id }).exec();
+    await this.sprintModel.deleteMany({ projectId: result._id }).exec();
   }
     async reserveIssueNumber(id: string): Promise<{ projectKey: string; number: number }> {
     const project = await this.projectModel
